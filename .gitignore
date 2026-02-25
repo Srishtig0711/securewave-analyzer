@@ -215,3 +215,6 @@ dist/
 
 # Executables
 *.exe
+
+# Generated reports
+*.pdf
