@@ -1,8 +1,21 @@
 # SecureWave Analyzer
 
+![Python](https://img.shields.io/badge/Python-3.x-blue)
+![GUI](https://img.shields.io/badge/Interface-Tkinter-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
+
 SecureWave Analyzer is a Python-based WiFi security analysis tool that scans nearby wireless networks, evaluates their security posture, and presents results through both a Command Line Interface (CLI) and a Graphical User Interface (GUI).
 
 It combines network scanning, encryption detection, risk scoring, data visualization, and report export into a structured and easy-to-use system.
+
+## 📸 Screenshots
+
+### GUI Interface
+![GUI Screenshot](screenshots/gui.png)
+
+### Signal Strength Graph
+![Graph Screenshot](screenshots/graph.png)
 
 ---
 
