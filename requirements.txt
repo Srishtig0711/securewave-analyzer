@@ -3,3 +3,5 @@ tabulate
 comtypes
 colorama
 matplotlib
+scapy
+reportlab
