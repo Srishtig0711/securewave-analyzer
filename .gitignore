@@ -207,3 +207,11 @@ marimo/_lsp/
 __marimo__/
 
 securewave_report.csv
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Executables
+*.exe
