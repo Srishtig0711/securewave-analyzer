@@ -1,147 +1,167 @@
-SecureWave Analyzer
+# SecureWave Analyzer
 
-SecureWave Analyzer is a Python-based WiFi security analysis tool that scans nearby wireless networks, evaluates their security posture, and provides risk-based insights through both a Command Line Interface (CLI) and a Graphical User Interface (GUI).
+SecureWave Analyzer is a Python-based WiFi security analysis tool that scans nearby wireless networks, evaluates their security posture, and presents results through both a Command Line Interface (CLI) and a Graphical User Interface (GUI).
 
-The tool integrates real-time network scanning, encryption detection, risk scoring, data visualization, and report generation into a clean and user-friendly system.
+It combines network scanning, encryption detection, risk scoring, data visualization, and report export into a structured and easy-to-use system.
 
-Features
+---
 
-WiFi network scanning
+## Features
 
-Encryption type detection (Open, WPA, WPA2, WPA3)
+* WiFi network scanning
+* Encryption detection (Open, WPA, WPA2, WPA3)
+* Risk scoring engine
+* Risk-based sorting
+* Colored CLI output
+* GUI interface using Tkinter
+* Risk-based row highlighting
+* Signal strength visualization (Matplotlib)
+* CSV report export
+* Modular architecture
 
-Risk scoring engine
+---
 
-Risk-based sorting
+## Technology Stack
 
-Colored CLI output
+* Python
+* Tkinter
+* PyWiFi
+* Matplotlib
+* Tabulate
+* Colorama
+* CSV module
 
-GUI interface using Tkinter
+---
 
-Risk-based row highlighting in GUI
+## Project Structure
 
-Signal strength graph visualization (Matplotlib)
-
-CSV report export
-
-Clean modular architecture
-
-Technology Stack
-
-Python
-
-Tkinter (GUI)
-
-PyWiFi (WiFi scanning)
-
-Matplotlib (Signal visualization)
-
-Tabulate (CLI formatting)
-
-Colorama (CLI color output)
-
-CSV module (Report generation)
-
-Project Structure
+```
 securewave-analyzer/
-│
-├── main.py                # CLI version
-├── gui.py                 # GUI version
-├── scanner.py             # WiFi scanning logic
-├── risk_engine.py         # Risk scoring logic
-├── report_generator.py    # CSV export functionality
-├── requirements.txt       # Dependencies
+├── main.py
+├── gui.py
+├── scanner.py
+├── risk_engine.py
+├── report_generator.py
+├── requirements.txt
 └── README.md
-Installation Instructions
-1. Clone the Repository
+```
+
+---
+
+## Installation
+
+### 1. Clone the Repository
+
+```
 git clone https://github.com/srishtig0711/securewave-analyzer.git
 cd securewave-analyzer
-2. Create Virtual Environment
+```
+
+### 2. Create Virtual Environment
+
+```
 python -m venv venv
+```
 
-Activate it:
+### 3. Activate Virtual Environment
 
-Windows (PowerShell):
+PowerShell:
 
+```
 venv\Scripts\Activate.ps1
+```
 
-Windows (Command Prompt):
+Command Prompt:
 
+```
 venv\Scripts\activate
-3. Install Dependencies
+```
+
+### 4. Install Dependencies
+
+```
 pip install -r requirements.txt
-Running the Application
-CLI Version
+```
+
+---
+
+## Running the Application
+
+### CLI Mode
+
+```
 python main.py
+```
 
 This will:
 
-Scan networks
+* Scan networks
+* Display results in table format
+* Provide risk recommendations
+* Export CSV report
 
-Display results in table format
+---
 
-Show risk recommendations
+### GUI Mode
 
-Export report to CSV
-
-GUI Version
+```
 python gui.py
+```
 
-The GUI provides:
+The GUI allows you to:
 
-Scan button
+* Scan networks
+* View risk-colored table
+* Display signal strength graph
+* Export results to CSV
 
-Risk-colored table
+---
 
-Signal strength graph
+## Risk Scoring Logic
 
-CSV export option
+The analyzer assigns risk based on:
 
-Risk Scoring Logic
+* Encryption type (Open networks have higher risk)
+* Signal strength proximity
+* Security classification
 
-The tool assigns a risk score based on:
+Risk levels:
 
-Encryption type (Open networks receive higher risk scores)
+* High Risk
+* Medium Risk
+* Low Risk
 
-Signal strength proximity
+---
 
-Network security classification
+## Output
 
-Risk levels are categorized as:
+* CLI table view
+* GUI table view
+* Signal strength bar graph
+* CSV file: `securewave_report.csv`
 
-High Risk
+---
 
-Medium Risk
+## Future Enhancements
 
-Low Risk
+* Channel detection
+* Real-time refresh mode
+* Executable packaging
+* UI refinement
 
-Output
+---
 
-Terminal table (CLI)
-
-GUI table with color grading
-
-Signal strength bar graph
-
-CSV report file: securewave_report.csv
-
-Future Enhancements
-
-Channel detection support
-
-Real-time monitoring mode
-
-Advanced vulnerability mapping
-
-Executable packaging (.exe)
-
-Enhanced UI styling
-
-Author
+## Author
 
 Srishti Gupta
-GitHub: https://github.com/srishtig0711
+GitHub: [https://github.com/srishtig0711](https://github.com/srishtig0711)
 
-License
+---
 
-This project is licensed under the MIT License.
+## License
+
+MIT License
+
+---
+
+You were absolutely right to call it out.
