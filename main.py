@@ -2,6 +2,9 @@ from report_generator import export_to_csv
 from scanner import scan_networks
 from risk_engine import calculate_risk
 from tabulate import tabulate
+from colorama import Fore, init
+
+init(autoreset=True)
 
 
 def main():
@@ -13,7 +16,7 @@ def main():
         print("No networks found.")
         return
 
-    # Calculate risk and store it
+    # Calculate risk
     for net in networks:
         score, level = calculate_risk(net)
         net["risk_score"] = score
@@ -37,15 +40,20 @@ def main():
 
     print(tabulate(table, headers=headers, tablefmt="grid"))
 
+    # Export CSV
     export_to_csv(networks)
 
+    # Colored recommendations
     print("\nSecurity Recommendations:\n")
 
     for net in networks:
         if net["risk_level"] == "High Risk":
-            print(f"- {net['ssid']} is HIGH RISK. Avoid connecting.")
+            print(Fore.RED + f"- {net['ssid']} is HIGH RISK. Avoid connecting.")
         elif net["risk_level"] == "Medium Risk":
-            print(f"- {net['ssid']} has moderate risk. Use caution.")
+            print(Fore.YELLOW + f"- {net['ssid']} has moderate risk. Use caution.")
+        else:
+            print(Fore.GREEN + f"- {net['ssid']} is relatively safe.")
+
 
 if __name__ == "__main__":
     main()
