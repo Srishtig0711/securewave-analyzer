@@ -163,5 +163,3 @@ GitHub: [https://github.com/srishtig0711](https://github.com/srishtig0711)
 MIT License
 
 ---
-
-You were absolutely right to call it out.
