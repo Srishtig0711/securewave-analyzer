@@ -1,91 +1,168 @@
 from datetime import datetime
 
+from models import AuditResult, Finding
+
+
 def generate_audit_summary(stats, encryption_type=None):
-    summary = []
-    classifications = []
-    recommendations = []
-    risk_score = 0
+    """
+    Analyse network traffic and encryption configuration
+    and return a structured AuditResult.
+    """
+
+    findings = []
 
     # --------------------------
-    # Encryption Compliance
+    # Encryption Analysis
     # --------------------------
-    if encryption_type:
-        if encryption_type == "Open":
-            summary.append("Open network detected.")
-            classifications.append("Critical Security Misconfiguration")
-            recommendations.append("Enable WPA2 or WPA3 encryption immediately.")
-            risk_score += 40
 
-        elif encryption_type == "WPA":
-            summary.append("WPA encryption is deprecated.")
-            classifications.append("Weak Encryption Protocol")
-            recommendations.append("Upgrade to WPA2 or WPA3.")
-            risk_score += 25
+    if encryption_type == "Open":
+        findings.append(
+            Finding(
+                title="Open Wireless Network",
+                description=(
+                    "The network does not use wireless encryption, "
+                    "which may allow nearby users to observe network traffic."
+                ),
+                severity="Critical",
+                evidence="No wireless encryption was detected.",
+                recommendation=(
+                    "Enable WPA2 or WPA3 encryption and use a strong "
+                    "wireless password."
+                )
+            )
+        )
 
-        elif encryption_type == "WPA2":
-            summary.append("WPA2 encryption detected.")
-            recommendations.append("Consider upgrading to WPA3 for enhanced security.")
-
-        elif encryption_type == "WPA3":
-            summary.append("WPA3 encryption detected (Strong).")
+    elif encryption_type == "WPA":
+        findings.append(
+            Finding(
+                title="Deprecated WPA Encryption",
+                description=(
+                    "WPA is an outdated wireless security protocol "
+                    "with known security weaknesses."
+                ),
+                severity="High",
+                evidence="WPA encryption was detected.",
+                recommendation="Upgrade the network to WPA2 or WPA3."
+            )
+        )
 
     # --------------------------
     # Traffic Analysis
     # --------------------------
+
     http_count = stats.get("HTTP", 0)
     icmp_count = stats.get("ICMP", 0)
     dns_count = stats.get("DNS", 0)
     tcp_count = stats.get("TCP", 0)
 
     if http_count > 0:
-        summary.append("Unencrypted HTTP traffic observed.")
-        classifications.append("Unencrypted Data Transmission")
-        recommendations.append("Use HTTPS to secure communication.")
-        risk_score += 20
+        findings.append(
+            Finding(
+                title="Unencrypted HTTP Traffic",
+                description=(
+                    "Unencrypted HTTP traffic was observed during "
+                    "the monitoring period."
+                ),
+                severity="Medium",
+                evidence=f"{http_count} HTTP packet(s) detected.",
+                recommendation=(
+                    "Prefer HTTPS connections to protect data "
+                    "during transmission."
+                )
+            )
+        )
 
     if icmp_count > 50:
-        summary.append("High ICMP traffic volume detected.")
-        classifications.append("Possible Ping Sweep / Network Scanning")
-        recommendations.append("Monitor for reconnaissance behavior.")
-        risk_score += 15
+        findings.append(
+            Finding(
+                title="Possible ICMP Reconnaissance",
+                description=(
+                    "A high volume of ICMP traffic was observed. "
+                    "This may be consistent with network discovery "
+                    "or reconnaissance activity."
+                ),
+                severity="Medium",
+                evidence=f"{icmp_count} ICMP packet(s) detected.",
+                recommendation=(
+                    "Investigate the traffic sources and monitor "
+                    "for repeated reconnaissance patterns."
+                )
+            )
+        )
 
     if tcp_count > 200:
-        summary.append("High TCP connection volume detected.")
-        classifications.append("Possible Port Scanning Activity")
-        recommendations.append("Review connection logs for suspicious hosts.")
-        risk_score += 15
+        findings.append(
+            Finding(
+                title="Possible TCP Scanning Activity",
+                description=(
+                    "A high volume of TCP traffic was observed. "
+                    "This may indicate connection probing or "
+                    "other high-volume network activity."
+                ),
+                severity="Medium",
+                evidence=f"{tcp_count} TCP packet(s) detected.",
+                recommendation=(
+                    "Review connection patterns and investigate "
+                    "unusual source or destination hosts."
+                )
+            )
+        )
 
     if dns_count > 40:
-        summary.append("High DNS query volume observed.")
-        classifications.append("Excessive DNS Activity")
-        recommendations.append("Investigate unusual domain resolution behavior.")
-        risk_score += 10
+        findings.append(
+            Finding(
+                title="Unusually High DNS Activity",
+                description=(
+                    "A high volume of DNS queries was observed "
+                    "during the monitoring period."
+                ),
+                severity="Low",
+                evidence=f"{dns_count} DNS packet(s) detected.",
+                recommendation=(
+                    "Review DNS activity for unexpected applications "
+                    "or unusually frequent domain lookups."
+                )
+            )
+        )
 
     # --------------------------
-    # Risk Classification
+    # Risk Aggregation
     # --------------------------
-    if risk_score >= 60:
-        risk_level = "HIGH"
-        overall_status = "CRITICAL"
-    elif risk_score >= 30:
-        risk_level = "MEDIUM"
-        overall_status = "AT RISK"
-    else:
-        risk_level = "LOW"
-        overall_status = "SECURE"
 
-    if not summary:
-        summary.append("No significant anomalies detected.")
-        overall_status = "SECURE"
-
-    audit_data = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "summary": summary,
-        "classifications": list(set(classifications)),
-        "recommendations": list(set(recommendations)),
-        "risk_score": risk_score,
-        "risk_level": risk_level,
-        "overall_status": overall_status
+    severity_weights = {
+        "Critical": 40,
+        "High": 25,
+        "Medium": 20,
+        "Low": 10,
     }
 
-    return audit_data
+    risk_score = sum(
+        severity_weights.get(finding.severity, 0)
+        for finding in findings
+    )
+
+    risk_score = min(risk_score, 100)
+
+    if risk_score >= 60:
+        risk_level = "HIGH"
+    elif risk_score >= 30:
+        risk_level = "MEDIUM"
+    else:
+        risk_level = "LOW"
+
+    if risk_score >= 60:
+        overall_status = "CRITICAL"
+    elif risk_score >= 30:
+        overall_status = "AT RISK"
+    else:
+        overall_status = "SECURE"
+
+    if not findings:
+        overall_status = "SECURE"
+
+    return AuditResult(
+        findings=findings,
+        score=risk_score,
+        level=risk_level,
+        timestamp=datetime.now()
+    )
