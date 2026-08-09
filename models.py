@@ -11,6 +11,13 @@ class Network:
     signal: int
     security: str
 
+@dataclass
+class NetworkAssessment:
+    """Represents the security assessment of a Wi-Fi network."""
+
+    network: Network
+    score: int
+    level: str
 
 @dataclass
 class Finding:

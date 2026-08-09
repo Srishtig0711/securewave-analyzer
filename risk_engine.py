@@ -1,21 +1,25 @@
-def calculate_risk(network):
-    risk_score = 0
+from models import Network
 
-    # Open networks are high risk
-    if network["security"] == "Open":
-        risk_score += 70
-    else:
-        risk_score += 20
 
-    # Very strong signal means nearby
-    if network["signal"] > -50:
-        risk_score += 10
+def calculate_risk(network: Network):
+    """
+    Calculate the baseline security risk of a Wi-Fi network.
 
-    # Weak signal means harder to attack
-    if network["signal"] < -80:
-        risk_score -= 10
+    The baseline score is based on the network's security configuration.
+    Traffic-based findings will be incorporated into the risk assessment
+    in a later version of the audit engine.
+    """
 
-    # Determine level
+    security_scores = {
+        "Open": 80,
+        "Unknown": 60,
+        "WPA": 50,
+        "WPA2": 25,
+        "WPA3": 10,
+    }
+
+    risk_score = security_scores.get(network.security, 60)
+
     if risk_score >= 70:
         level = "High Risk"
     elif risk_score >= 40:

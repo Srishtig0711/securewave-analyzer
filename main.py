@@ -1,6 +1,7 @@
 from report_generator import export_to_csv
 from scanner import scan_networks
 from risk_engine import calculate_risk
+from models import NetworkAssessment
 from tabulate import tabulate
 from colorama import Fore, init
 
@@ -16,43 +17,70 @@ def main():
         print("No networks found.")
         return
 
-    # Calculate risk
-    for net in networks:
-        score, level = calculate_risk(net)
-        net["risk_score"] = score
-        net["risk_level"] = level
+    # Calculate risk assessments
+    assessments = []
+
+    for network in networks:
+        score, level = calculate_risk(network)
+
+        assessment = NetworkAssessment(
+            network=network,
+            score=score,
+            level=level
+        )
+
+        assessments.append(assessment)
 
     # Sort by highest risk first
-    networks.sort(key=lambda x: x["risk_score"], reverse=True)
+    assessments.sort(key=lambda x: x.score, reverse=True)
 
     table = []
 
-    for net in networks:
+    for assessment in assessments:
+        network = assessment.network
+
         table.append([
-            net["ssid"],
-            net["signal"],
-            net["security"],
-            net["risk_score"],
-            net["risk_level"]
+            network.ssid,
+            network.signal,
+            network.security,
+            assessment.score,
+            assessment.level
         ])
 
-    headers = ["SSID", "Signal (dBm)", "Security", "Risk Score", "Risk Level"]
+    headers = [
+        "SSID",
+        "Signal (dBm)",
+        "Security",
+        "Risk Score",
+        "Risk Level"
+    ]
 
     print(tabulate(table, headers=headers, tablefmt="grid"))
 
     # Export CSV
-    export_to_csv(networks)
+    export_to_csv(assessments)
 
     # Colored recommendations
     print("\nSecurity Recommendations:\n")
 
-    for net in networks:
-        if net["risk_level"] == "High Risk":
-            print(Fore.RED + f"- {net['ssid']} is HIGH RISK. Avoid connecting.")
-        elif net["risk_level"] == "Medium Risk":
-            print(Fore.YELLOW + f"- {net['ssid']} has moderate risk. Use caution.")
+    for assessment in assessments:
+        network = assessment.network
+
+        if assessment.level == "High Risk":
+            print(
+                Fore.RED
+                + f"- {network.ssid} is HIGH RISK. Avoid connecting."
+            )
+        elif assessment.level == "Medium Risk":
+            print(
+                Fore.YELLOW
+                + f"- {network.ssid} has moderate risk. Use caution."
+            )
         else:
-            print(Fore.GREEN + f"- {net['ssid']} is relatively safe.")
+            print(
+                Fore.GREEN
+                + f"- {network.ssid} is relatively safe."
+            )
 
 
 if __name__ == "__main__":

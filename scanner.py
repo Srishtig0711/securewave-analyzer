@@ -2,6 +2,8 @@ import pywifi
 import time
 from pywifi import const
 
+from models import Network
+
 
 def get_security_type(network):
     if not network.akm:
@@ -9,8 +11,8 @@ def get_security_type(network):
 
     if const.AKM_TYPE_WPA2PSK in network.akm:
         return "WPA2"
-    elif const.AKM_TYPE_WPA3PSK in network.akm:
-        return "WPA3"
+    elif getattr(const, "AKM_TYPE_WPA3PSK", None) in network.akm:
+    	return "WPA3"
     elif const.AKM_TYPE_WPAPSK in network.akm:
         return "WPA"
     else:
@@ -43,11 +45,14 @@ def scan_networks():
 
         security_type = get_security_type(network)
 
-        if ssid not in unique_networks or network.signal > unique_networks[ssid]["signal"]:
-            unique_networks[ssid] = {
-                "ssid": ssid,
-                "signal": network.signal,
-                "security": security_type
-            }
+        if (
+            ssid not in unique_networks
+            or network.signal > unique_networks[ssid].signal
+        ):
+            unique_networks[ssid] = Network(
+                ssid=ssid,
+                signal=network.signal,
+                security=security_type
+            )
 
     return list(unique_networks.values())
