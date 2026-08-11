@@ -39,7 +39,13 @@ def detect_traffic_findings(stats):
                     "Prefer HTTPS connections when transmitting "
                     "sensitive information."
                 ),
-                confidence=confidence
+                confidence=confidence,
+                what_it_means=(
+                    "Some network traffic was sent using HTTP instead "
+                    "of HTTPS. This means the connection may not have "
+                    "the same protection against someone observing "
+                    "the transmitted data."
+                )
             )
         )
 
@@ -69,7 +75,14 @@ def detect_traffic_findings(stats):
                     "Investigate the traffic sources and monitor "
                     "for repeated reconnaissance patterns."
                 ),
-                confidence=confidence
+                confidence=confidence,
+                what_it_means=(
+                    "A large amount of ping-like network traffic was "
+                    "detected. This can happen when devices check "
+                    "whether other devices are reachable. It can be "
+                    "normal, but unusually high activity may need "
+                    "further investigation."
+                )
             )
         )
 
@@ -98,7 +111,14 @@ def detect_traffic_findings(stats):
                     "Review connection patterns and investigate "
                     "unusual source or destination hosts."
                 ),
-                confidence=confidence
+                confidence=confidence,
+                what_it_means=(
+                    "A large number of network connection attempts "
+                    "were detected. This can happen when a device "
+                    "checks which services or devices are available "
+                    "on a network. It does not automatically mean "
+                    "that an attack is taking place."
+                )
             )
         )
 
@@ -128,7 +148,13 @@ def detect_traffic_findings(stats):
                     "Review DNS activity for unexpected applications "
                     "or unusually frequent domain lookups."
                 ),
-                confidence=confidence
+                confidence=confidence,
+                what_it_means=(
+                    "The network made more domain-name lookups than "
+                    "expected. This can be caused by normal applications "
+                    "and websites, but unusually frequent lookups may "
+                    "be worth checking."
+                )
             )
         )
 
