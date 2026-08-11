@@ -31,6 +31,7 @@ class Finding:
     evidence: str
     recommendation: str
     confidence: int = 0
+    what_it_means: str = ""
 
 
 @dataclass
