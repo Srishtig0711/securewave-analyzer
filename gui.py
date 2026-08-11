@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 
 from scanner import scan_networks
 from risk_engine import calculate_risk
@@ -17,6 +18,8 @@ last_scan = []
 last_audit_result = None
 last_stats = None
 
+
+# ================= NETWORK SCANNING =================
 
 def scan_and_display():
     global last_scan
@@ -61,35 +64,63 @@ def scan_and_display():
     last_scan = assessments
 
 
+# ================= CSV EXPORT =================
+
 def export_report():
     if last_scan:
         export_to_csv(last_scan)
 
 
+# ================= SIGNAL GRAPH =================
+
 def show_graph():
     if not last_scan:
         return
 
-    ssids = [assessment.network.ssid for assessment in last_scan]
-    signals = [assessment.network.signal for assessment in last_scan]
+    ssids = [
+        assessment.network.ssid
+        for assessment in last_scan
+    ]
+
+    signals = [
+        assessment.network.signal
+        for assessment in last_scan
+    ]
 
     plt.figure(figsize=(10, 6))
 
     bars = plt.bar(ssids, signals)
 
-    plt.xlabel("SSID", fontsize=12)
-    plt.ylabel("Signal Strength (dBm)", fontsize=12)
+    plt.xlabel(
+        "SSID",
+        fontsize=12
+    )
+
+    plt.ylabel(
+        "Signal Strength (dBm)",
+        fontsize=12
+    )
+
     plt.title(
         "WiFi Signal Strength Analysis",
         fontsize=14,
         fontweight="bold"
     )
 
-    plt.xticks(rotation=45, ha="right")
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.xticks(
+        rotation=45,
+        ha="right"
+    )
+
+    plt.grid(
+        axis="y",
+        linestyle="--",
+        alpha=0.7
+    )
 
     for bar in bars:
         height = bar.get_height()
+
         plt.text(
             bar.get_x() + bar.get_width() / 2,
             height,
@@ -103,10 +134,15 @@ def show_graph():
     plt.show()
 
 
+# ================= NETWORK AUDIT =================
+
 def run_network_audit():
     global last_audit_result, last_stats
 
-    audit_output.delete("1.0", tk.END)
+    audit_output.delete(
+        "1.0",
+        tk.END
+    )
 
     stats = run_packet_monitor(10)
 
@@ -115,31 +151,66 @@ def run_network_audit():
     last_audit_result = audit_result
     last_stats = stats
 
+    # --------------------------
+    # Report Header
+    # --------------------------
+
     audit_output.insert(
         tk.END,
-        "Wireless Security Audit Report\n\n"
+        "WIRELESS SECURITY AUDIT REPORT\n",
+        "header"
     )
 
     audit_output.insert(
         tk.END,
-        f"Timestamp: "
+        "\n"
+    )
+
+    audit_output.insert(
+        tk.END,
+        "Timestamp\n",
+        "section"
+    )
+
+    audit_output.insert(
+        tk.END,
         f"{audit_result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
     )
 
+    # --------------------------
+    # Traffic Statistics
+    # --------------------------
+
     audit_output.insert(
         tk.END,
-        "Traffic Statistics:\n"
+        "TRAFFIC STATISTICS\n",
+        "section"
     )
 
     for key, value in stats.items():
         audit_output.insert(
             tk.END,
-            f"{key}: {value}\n"
+            f"  {key}: {value}\n"
         )
 
     audit_output.insert(
         tk.END,
-        f"\nRisk Score: {audit_result.score}\n"
+        "\n"
+    )
+
+    # --------------------------
+    # Risk Summary
+    # --------------------------
+
+    audit_output.insert(
+        tk.END,
+        "SECURITY SUMMARY\n",
+        "section"
+    )
+
+    audit_output.insert(
+        tk.END,
+        f"Risk Score: {audit_result.score}\n"
     )
 
     audit_output.insert(
@@ -149,66 +220,159 @@ def run_network_audit():
 
     if audit_result.level == "HIGH":
         overall_status = "CRITICAL"
+        status_tag = "critical"
+
     elif audit_result.level == "MEDIUM":
         overall_status = "AT RISK"
+        status_tag = "warning"
+
     else:
         overall_status = "SECURE"
+        status_tag = "secure"
 
     audit_output.insert(
         tk.END,
-        f"Overall Status: {overall_status}\n\n"
+        "Overall Status: "
     )
 
     audit_output.insert(
         tk.END,
-        "Security Findings:\n\n"
+        f"{overall_status}\n\n",
+        status_tag
+    )
+
+    # --------------------------
+    # Security Findings
+    # --------------------------
+
+    audit_output.insert(
+        tk.END,
+        "SECURITY FINDINGS\n",
+        "section"
+    )
+
+    audit_output.insert(
+        tk.END,
+        "\n"
     )
 
     if not audit_result.findings:
+
         audit_output.insert(
             tk.END,
-            "No significant security findings detected.\n"
+            "No significant security findings were detected.\n\n",
+            "secure"
         )
+
+        audit_output.insert(
+            tk.END,
+            "This means SecureWave did not identify any of the "
+            "currently monitored traffic patterns that crossed "
+            "its detection thresholds.\n"
+        )
+
         return
 
-    for finding in audit_result.findings:
+    # --------------------------
+    # Display Each Finding
+    # --------------------------
 
-    	audit_output.insert(
-        	tk.END,
-        	f"[{finding.severity}] "
-        	f"{finding.title}\n"
-    	)
+    for index, finding in enumerate(
+        audit_result.findings,
+        start=1
+    ):
 
-    	audit_output.insert(
-        	tk.END,
-        	f"Detection Confidence: "
-        	f"{finding.confidence}%\n"
-    	)
+        # Severity colour
+        if finding.severity == "Critical":
+            severity_tag = "critical"
 
-    	audit_output.insert(
-        	tk.END,
-        	f"What happened: "
-        	f"{finding.description}\n"
-    	)
+        elif finding.severity == "High":
+            severity_tag = "high"
 
-    	audit_output.insert(
-        	tk.END,
-        	f"Evidence: "
-        	f"{finding.evidence}\n"
-    	)
+        elif finding.severity == "Medium":
+            severity_tag = "warning"
 
-    	audit_output.insert(
-        	tk.END,
-        	f"What you should do: "
-        	f"{finding.recommendation}\n\n"
-    	)
+        else:
+            severity_tag = "low"
 
+        audit_output.insert(
+            tk.END,
+            f"{index}. {finding.title}\n",
+            severity_tag
+        )
+
+        audit_output.insert(
+            tk.END,
+            f"Risk Level: {finding.severity}\n"
+        )
+
+        audit_output.insert(
+            tk.END,
+            f"Detection Confidence: "
+            f"{finding.confidence}%\n\n"
+        )
+
+        audit_output.insert(
+            tk.END,
+            "What we detected\n",
+            "subheading"
+        )
+
+        audit_output.insert(
+            tk.END,
+            f"{finding.evidence}\n\n"
+        )
+
+        audit_output.insert(
+            tk.END,
+            "What this means\n",
+            "subheading"
+        )
+
+        audit_output.insert(
+            tk.END,
+            f"{finding.what_it_means}\n\n"
+        )
+
+        audit_output.insert(
+            tk.END,
+            "Why this matters\n",
+            "subheading"
+        )
+
+        audit_output.insert(
+            tk.END,
+            f"{finding.description}\n\n"
+        )
+
+        audit_output.insert(
+            tk.END,
+            "What you can do\n",
+            "subheading"
+        )
+
+        audit_output.insert(
+            tk.END,
+            f"{finding.recommendation}\n"
+        )
+
+        audit_output.insert(
+            tk.END,
+            "\n"
+            + "-" * 70
+            + "\n\n"
+        )
+
+
+# ================= PDF EXPORT =================
 
 def export_pdf():
     global last_audit_result, last_stats
 
     if not last_audit_result or not last_stats:
-        print("Please run Network Audit before exporting PDF.")
+        print(
+            "Please run Network Audit before exporting PDF."
+        )
         return
 
     try:
@@ -217,36 +381,58 @@ def export_pdf():
             last_audit_result
         )
 
-        print("PDF generated successfully in project folder.")
+        print(
+            "PDF generated successfully in project folder."
+        )
 
     except Exception as e:
-        print("Error generating PDF:", e)
+        print(
+            "Error generating PDF:",
+            e
+        )
 
 
 # ================= GUI SETUP =================
 
 root = tk.Tk()
-root.title("SecureWave Analyzer")
-root.geometry("900x500")
-root.configure(bg="#f4f6f9")
 
+root.title(
+    "SecureWave Analyzer"
+)
+
+root.geometry(
+    "1000x700"
+)
+
+root.configure(
+    bg="#f4f6f9"
+)
+
+
+# ================= TITLE =================
 
 title_label = tk.Label(
     root,
     text="SecureWave Analyzer",
-    font=("Arial", 16, "bold"),
+    font=("Arial", 18, "bold"),
     bg="#f4f6f9",
 )
 
-title_label.pack(pady=10)
+title_label.pack(
+    pady=12
+)
 
+
+# ================= BUTTONS =================
 
 button_frame = tk.Frame(
     root,
     bg="#f4f6f9"
 )
 
-button_frame.pack(pady=5)
+button_frame.pack(
+    pady=5
+)
 
 
 scan_button = tk.Button(
@@ -261,7 +447,7 @@ scan_button = tk.Button(
 scan_button.grid(
     row=0,
     column=0,
-    padx=10
+    padx=6
 )
 
 
@@ -277,7 +463,7 @@ export_button = tk.Button(
 export_button.grid(
     row=0,
     column=1,
-    padx=10
+    padx=6
 )
 
 
@@ -293,7 +479,7 @@ graph_button = tk.Button(
 graph_button.grid(
     row=0,
     column=2,
-    padx=10
+    padx=6
 )
 
 
@@ -309,7 +495,7 @@ audit_button = tk.Button(
 audit_button.grid(
     row=0,
     column=3,
-    padx=10
+    padx=6
 )
 
 
@@ -325,9 +511,11 @@ pdf_button = tk.Button(
 pdf_button.grid(
     row=0,
     column=4,
-    padx=10
+    padx=6
 )
 
+
+# ================= NETWORK TABLE =================
 
 columns = (
     "SSID",
@@ -337,14 +525,17 @@ columns = (
     "Risk Level"
 )
 
+
 tree = ttk.Treeview(
     root,
     columns=columns,
-    show="headings"
+    show="headings",
+    height=10
 )
 
 
 for col in columns:
+
     tree.heading(
         col,
         text=col
@@ -352,7 +543,7 @@ for col in columns:
 
     tree.column(
         col,
-        width=150,
+        width=180,
         anchor="center"
     )
 
@@ -375,22 +566,80 @@ tree.tag_configure(
 
 tree.pack(
     fill="both",
-    expand=True,
+    expand=False,
     padx=20,
     pady=10
 )
 
 
-audit_output = tk.Text(
+# ================= AUDIT OUTPUT =================
+
+audit_output = ScrolledText(
     root,
-    height=8
+    height=18,
+    wrap=tk.WORD,
+    font=("Consolas", 10)
 )
 
 audit_output.pack(
-    fill="x",
+    fill="both",
+    expand=True,
     padx=20,
     pady=5
 )
 
+
+# ================= TEXT STYLES =================
+
+audit_output.tag_configure(
+    "header",
+    font=("Arial", 15, "bold"),
+    foreground="#212529"
+)
+
+audit_output.tag_configure(
+    "section",
+    font=("Arial", 11, "bold"),
+    foreground="#343a40"
+)
+
+audit_output.tag_configure(
+    "subheading",
+    font=("Arial", 10, "bold"),
+    foreground="#495057"
+)
+
+audit_output.tag_configure(
+    "critical",
+    font=("Arial", 11, "bold"),
+    foreground="#b02a37"
+)
+
+audit_output.tag_configure(
+    "high",
+    font=("Arial", 11, "bold"),
+    foreground="#dc3545"
+)
+
+audit_output.tag_configure(
+    "warning",
+    font=("Arial", 11, "bold"),
+    foreground="#856404"
+)
+
+audit_output.tag_configure(
+    "low",
+    font=("Arial", 11, "bold"),
+    foreground="#6c757d"
+)
+
+audit_output.tag_configure(
+    "secure",
+    font=("Arial", 11, "bold"),
+    foreground="#198754"
+)
+
+
+# ================= START APPLICATION =================
 
 root.mainloop()
