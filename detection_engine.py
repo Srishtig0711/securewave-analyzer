@@ -19,19 +19,27 @@ def detect_traffic_findings(stats):
     # --------------------------
 
     if http_count > 0:
+
+        if http_count >= 10:
+            confidence = 95
+        else:
+            confidence = 85
+
         findings.append(
             Finding(
                 title="Unencrypted HTTP Traffic",
                 description=(
                     "Unencrypted HTTP traffic was observed during "
-                    "the monitoring period."
+                    "the monitoring period. HTTP does not provide "
+                    "the same transport encryption as HTTPS."
                 ),
                 severity="Medium",
                 evidence=f"{http_count} HTTP packet(s) detected.",
                 recommendation=(
-                    "Prefer HTTPS connections to protect data "
-                    "during transmission."
-                )
+                    "Prefer HTTPS connections when transmitting "
+                    "sensitive information."
+                ),
+                confidence=confidence
             )
         )
 
@@ -40,20 +48,28 @@ def detect_traffic_findings(stats):
     # --------------------------
 
     if icmp_count > 50:
+
+        if icmp_count >= 100:
+            confidence = 90
+        else:
+            confidence = 75
+
         findings.append(
             Finding(
                 title="Possible ICMP Reconnaissance",
                 description=(
                     "A high volume of ICMP traffic was observed. "
                     "This may be consistent with network discovery "
-                    "or reconnaissance activity."
+                    "or reconnaissance activity, although legitimate "
+                    "network diagnostics can also generate ICMP traffic."
                 ),
                 severity="Medium",
                 evidence=f"{icmp_count} ICMP packet(s) detected.",
                 recommendation=(
                     "Investigate the traffic sources and monitor "
                     "for repeated reconnaissance patterns."
-                )
+                ),
+                confidence=confidence
             )
         )
 
@@ -62,20 +78,27 @@ def detect_traffic_findings(stats):
     # --------------------------
 
     if tcp_count > 200:
+
+        if tcp_count >= 500:
+            confidence = 90
+        else:
+            confidence = 75
+
         findings.append(
             Finding(
                 title="Possible TCP Scanning Activity",
                 description=(
                     "A high volume of TCP traffic was observed. "
-                    "This may indicate connection probing or "
-                    "other high-volume network activity."
+                    "This may indicate connection probing or other "
+                    "high-volume network activity."
                 ),
                 severity="Medium",
                 evidence=f"{tcp_count} TCP packet(s) detected.",
                 recommendation=(
                     "Review connection patterns and investigate "
                     "unusual source or destination hosts."
-                )
+                ),
+                confidence=confidence
             )
         )
 
@@ -84,19 +107,28 @@ def detect_traffic_findings(stats):
     # --------------------------
 
     if dns_count > 40:
+
+        if dns_count >= 100:
+            confidence = 90
+        else:
+            confidence = 70
+
         findings.append(
             Finding(
                 title="Unusually High DNS Activity",
                 description=(
                     "A high volume of DNS queries was observed "
-                    "during the monitoring period."
+                    "during the monitoring period. High DNS activity "
+                    "can be caused by legitimate applications as well "
+                    "as unusual network behaviour."
                 ),
                 severity="Low",
                 evidence=f"{dns_count} DNS packet(s) detected.",
                 recommendation=(
                     "Review DNS activity for unexpected applications "
                     "or unusually frequent domain lookups."
-                )
+                ),
+                confidence=confidence
             )
         )
 

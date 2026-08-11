@@ -11,6 +11,7 @@ class Network:
     signal: int
     security: str
 
+
 @dataclass
 class NetworkAssessment:
     """Represents the security assessment of a Wi-Fi network."""
@@ -18,6 +19,7 @@ class NetworkAssessment:
     network: Network
     score: int
     level: str
+
 
 @dataclass
 class Finding:
@@ -28,6 +30,7 @@ class Finding:
     severity: str
     evidence: str
     recommendation: str
+    confidence: int = 0
 
 
 @dataclass

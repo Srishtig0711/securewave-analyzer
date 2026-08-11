@@ -173,29 +173,35 @@ def run_network_audit():
 
     for finding in audit_result.findings:
 
-        audit_output.insert(
-            tk.END,
-            f"[{finding.severity}] "
-            f"{finding.title}\n"
-        )
+    	audit_output.insert(
+        	tk.END,
+        	f"[{finding.severity}] "
+        	f"{finding.title}\n"
+    	)
 
-        audit_output.insert(
-            tk.END,
-            f"Description: "
-            f"{finding.description}\n"
-        )
+    	audit_output.insert(
+        	tk.END,
+        	f"Detection Confidence: "
+        	f"{finding.confidence}%\n"
+    	)
 
-        audit_output.insert(
-            tk.END,
-            f"Evidence: "
-            f"{finding.evidence}\n"
-        )
+    	audit_output.insert(
+        	tk.END,
+        	f"What happened: "
+        	f"{finding.description}\n"
+    	)
 
-        audit_output.insert(
-            tk.END,
-            f"Recommendation: "
-            f"{finding.recommendation}\n\n"
-        )
+    	audit_output.insert(
+        	tk.END,
+        	f"Evidence: "
+        	f"{finding.evidence}\n"
+    	)
+
+    	audit_output.insert(
+        	tk.END,
+        	f"What you should do: "
+        	f"{finding.recommendation}\n\n"
+    	)
 
 
 def export_pdf():
